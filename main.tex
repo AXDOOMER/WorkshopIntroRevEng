@@ -118,7 +118,7 @@
         \item Les EXE et DLL utilisent le format Portable Executable (PE) % Pour ELF c'est COFF
         \item Le code est dans un exécutable est sous forme d'opcodes (section \texttt{.text})
         \item Les opcodes peuvent être désassemblés
-        \item Un instruction en assembleur et formé de un ou plusieurs opcodes
+        \item Une instruction en assembleur est formée de un ou plusieurs opcodes
     \end{itemize}
 \end{frame}
 
@@ -141,9 +141,9 @@
 \begin{frame}{L'analyse statique}
 
 \begin{itemize}
-    \item Examination du code sans exécuter le programme.
-    \item Pas besoin de comprendre tout, parfois on veut juste savoir les intrants ou extrants d'une fonction sans comprendre son fonctionnement.
-    \item On a le droit d'assumer des choses et de poser des hypothèses.
+    \item Examen du code sans exécuter le programme.
+    \item Pas besoin de tout comprendre: parfois on veut juste connaître les intrants ou extrants d'une fonction sans comprendre son fonctionnement.
+    \item On a le droit de se fonder sur des suppositions et de poser des hypothèses.
     \item Pour les parties trop difficiles à comprendre d'un programme, se servir de l'analyse statique pour trouver où mettre des breakpoints et aller chercher les valeurs avec un débogueur. 
     \item Le but de la rétro-ingénierie, c'est d'en faire le moins possible.
 \end{itemize}
@@ -177,8 +177,8 @@
 \begin{frame}{Flags de processeur}
     \begin{itemize}
         \item Il y a un registre FLAGS (EFLAGS sur 32-bit, RFLAGS sur 64-bit). 
-        \item Il sert à garder le résultats des conditions rencontrées dans le code.
-        \item Les flags sont modifiés par certaines instructions. Ils affectent le flot du code (instructions de type jump conditionnels).
+        \item Il sert à conserver le résultat des conditions rencontrées dans le code.
+        \item Les «flags» sont modifiés par certaines instructions. Ils affectent le flot d'exécution du code (instructions de type «jump» conditionnel).
         \item Ils sont modifiés par les instructions comme \texttt{cmp}, mais peuvent aussi être modifiés par des instructions comme \texttt{sub}. 
         \item Il n'est pas utile de les connaître pour faire la rétro-ingénierie.
     \end{itemize}
@@ -187,7 +187,7 @@
 
 \begin{frame}{La pile (stack)}
 
-La pile est un mécanisme utilisé pour préserver des données lors des changements de portée (exemple: on entre dans une fonction)
+La pile est un mécanisme utilisé pour préserver des données lors des changements de portée (exemple: lorsqu'on entre dans une fonction)
 
 \begin{center}
 \includegraphics[width=.60\textwidth,height=.56\textheight]{Stack-convention}\newline{}
@@ -274,6 +274,7 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
 \end{frame}
 
 \begin{frame}{Opérations logiques et «bitwise»}
+    Bitwise operations: Opérations au niveau du bit.
     \begin{table}
     \centering
     \begin{tabular}{c c}
@@ -285,11 +286,11 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
     \texttt{not dst} & dst = \textasciitilde dst \\
     \texttt{test src1, src2} &  src1 \& src2: Change le status flag
     \end{tabular}
-    \caption{\label{tab:insbitwise}Instructions pour les opérations logiques et sur les bits}
+    \caption{\label{tab:insbitwise}Instructions pour les opérations logiques et les opérations sur les bits}
     \end{table}
 \end{frame}
 
-\begin{frame}{Instructions jump conditionnels}
+\begin{frame}{Instructions pour les sauts conditionnels}
     % Les instructions de type JMP conditionnels suivent souvent l'instruction CMP, mais pas tout le temps. 
     Non signé: above/below\newline
     Signé: greater/lower
@@ -310,12 +311,12 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
         <= & JBE/JNA & JLE/JNG
     \end{tabular}
     \end{center}
-    \caption{\label{tab:inscondjmp}Jumps conditionnels}
+    \caption{\label{tab:inscondjmp}Sauts conditionnels}
     \end{table}
 \end{frame}
 
-\begin{frame}{Instructions jump conditionnels}
-    Les instructions de type JMP conditionnels suivent souvent l'instruction CMP ou TEST, mais pas tout le temps. Les jumps se fient sur les flags, mais ceux-ci peuvent être modifiés autrement. Voir \href{http://unixwiz.net/techtips/x86-jumps.html}{ici} pour les flags.
+\begin{frame}{Instructions pour les sauts conditionnels}
+    Les instructions de type JMP conditionnel suivent souvent l'instruction CMP ou TEST, mais pas tout le temps. Les sauts se fient aux flags, mais ceux-ci peuvent être modifiés autrement. Voir \href{http://unixwiz.net/techtips/x86-jumps.html}{ici} pour les flags.
     \newline{}\newline{}
     Exemple de jump dans une fonction en assembleur (var\_4 = -4 sur le stack):
     
@@ -325,7 +326,7 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
 \end{frame}
 
 \begin{frame}{Branches non-conditionnelles}
-    Regule le code flow
+    Régule le flot d'exécution (code flow)
     \begin{table}
     \centering
     \begin{tabular}{c c}
@@ -354,11 +355,11 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
 \end{frame}
 
 \begin{frame}{Instruction XOR}
-    Opération XOR tel que l'opérateur \texttt{\textasciicircum}
+    Opération XOR telle que l'opérateur \texttt{\textasciicircum}
     \begin{itemize}
         \item \texttt{xor eax, eax} pour mettre le registre EAX à zéro
         \item L'opération XOR dans des boucles peut indiquer qu'il y a encodage
-        \item Menu \texttt{Search} > \texttt{Text}, entrez "xor", puis \texttt{Search all occurrences}
+        \item Menu \texttt{Search} -> \texttt{Text}, entrez "xor", puis \texttt{Search all occurrences}
         \item NULL-preserving XOR: Ne XOR pas les 0 ou les valeurs qui sont == à la clef
     \end{itemize}
     
