@@ -1,3 +1,6 @@
+% UC Berkeley Beamer Theme
+% https://www.overleaf.com/latex/templates/uc-berkeley-beamer-theme/bywswngntrws
+
 % beamerthemeUCBerkeley.sty v1.0 (March 17, 2017)
 % by Overleaf (LianTze Lim, Ryan Looney)
 \ProvidesPackage{beamerthemeUCBerkeley}
@@ -8,6 +11,11 @@
 \RequirePackage{etoolbox}
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{caption}[numbered]
+
+%\usepackage{lastpage}
+%\usepackage{fancyhdr}
+%\pagestyle{fancy} 
+%\fancyfoot[CO,CE]{\thepage\ / \pageref{LastPage}}
 
 % \RequirePackage[T1]{fontenc}
 % \RequirePackage[charter,expert]{mathdesign}
@@ -34,6 +42,12 @@
 \definecolor{BerkeleyTableGold}{RGB}{222,157,46}
 \definecolor{BerkeleyTableBlue1}{RGB}{207,226,234}
 \definecolor{BerkeleyTableBlue2}{RGB}{232,241,245}
+\definecolor{Indigo}{RGB}{75,0,130}
+%\definecolor{CustomLinkColor}{RGB}{0,49,98}
+%\definecolor{CustomLinkColor}{RGB}{40,0,130}
+\definecolor{CustomLinkColor}{RGB}{174,42,49}
+
+%% TODO: DEFINE AN HIDDEN BLOCK FOR SOLUTIONS
 
 \setbeamertemplate{title page}[default][left]
 \setbeamerfont{title}{family=\rmfamily,size=\Huge}
@@ -41,13 +55,14 @@
 
 \setbeamersize{text margin left=2em, text margin right=2em}
 
-\setbeamertemplate{frametitle}{\vskip0.2\paperheight\insertframetitle} 
+\setbeamertemplate{frametitle}{\vskip0.1\paperheight\insertframetitle} 
 \setbeamerfont{frametitle}{family=\rmfamily,series=\mdseries,size=\LARGE}
 \setbeamerfont{block title}{family=\rmfamily,size=\large}
 \setbeamercolor{titlelike}{fg=BerkeleyGold}
 \setbeamercolor{normal text}{fg=BerkeleyBlueText}
 \setbeamercolor{structure}{fg=BerkeleyBlueText}
 \setbeamercolor{block title}{fg=BerkeleyGold}
+\hypersetup{colorlinks,linkcolor=,urlcolor=CustomLinkColor}
 
 \setbeamertemplate{itemize item}{\textbullet}
 \setbeamertemplate{itemize subitem}{--}
@@ -57,12 +72,16 @@
 \setlength{\leftmarginiii}{1em}
 
 \pgfdeclareimage[width=\paperwidth]{blueslope}{blueslope}
-\pgfdeclareimage[width=0.2\paperwidth]{logo}{UCBerkeley-logo-white}
+\pgfdeclareimage[width=0.075\paperwidth]{logo}{logo_dci_white_red}
 
 \setbeamertemplate{background}{%
 \begin{tikzpicture}[overlay,remember picture]
+% blue slope on the background%
 \node[anchor=south west,inner sep=0pt,draw=none,yshift=-6pt] at (current page.south west) {\pgfuseimage{blueslope}};%
+% our logo %
 \node[anchor=south west,inner sep=0pt,draw=none,xshift=0.05\paperwidth,yshift=0.04\paperheight] at (current page.south west) {\pgfuseimage{logo}};%
+% page number on each slide %
+\node[anchor=south east,inner sep=0pt,draw=none,xshift=-0.1\paperwidth,yshift=0.042\paperheight] at (current page.south east) {\textcolor{white}{\thepage}};%
 \end{tikzpicture}%
 }
 
@@ -71,11 +90,11 @@
 }
 
 \newcommand{\smallframetitle}{%
-  \setbeamertemplate{frametitle}{\vskip0.15\paperheight\insertframetitle}
+  \setbeamertemplate{frametitle}{\vskip0.1\paperheight\insertframetitle}
   \setbeamerfont{frametitle}{size=\large,series=\bfseries}
 }
 \newcommand{\normalframetitle}{%
-  \setbeamertemplate{frametitle}{\vskip0.2\paperheight\insertframetitle} 
+  \setbeamertemplate{frametitle}{\vskip0.1\paperheight\insertframetitle} 
   \setbeamerfont{frametitle}{size=\LARGE,series=\mdseries}
 }
 
