@@ -383,7 +383,7 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
     Exemple de jump dans une fonction en assembleur (var\_4 = -4 sur le stack):
     
     \begin{center}
-    \includegraphics[width=.70\textwidth,height=.40\textheight]{Ex_jump}
+    \includegraphics[width=.65\textwidth,height=.42\textheight]{Ex_jump}
     \end{center}
 \end{frame}
 
@@ -576,16 +576,17 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
 
 
 \begin{frame}{Raccourcis dans IDA}
-    Mettre le curseur sur une donnée, puis appuyer...
+    Cliquer pour placer le curseur à un endroit approprié, puis appuyer...
     \begin{itemize}
         \item \texttt{U}: Indéfinir une donnée
         \item \texttt{A}: Convertir en string
         \item \texttt{D}: Convertir en donnée
-        \item \texttt{C}: convertir en code
+        \item \texttt{C}: Convertir en code
         \item \texttt{R}: Convertir en caractère
         \item \texttt{:} et \texttt{;} : Mettre un commentaire
         \item \texttt{X}: Pour trouver les références croisées
         \item \texttt{N}: Renommer une fonction ou une variable
+        \item \texttt{«espace»}: Alterner entre la vue «Graph» et «Text»
     \end{itemize}
 \end{frame}
 
@@ -612,7 +613,7 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
         \item Toujours commencer avec les commandes \texttt{strings} ou \texttt{binwalk} parce qu'elles peuvent révéler des informations qu'on pourrait passer à côté autrement
     \end{itemize}
     
-    \begin{block}{Ouin mais reverser l'assembleur c'est tough}
+    \begin{block}{«Ouin mais reverser l'assembleur c'est tough»}
         Plus t'en fait, plus tu deviens bon!  ;-)
     \end{block}
 \end{frame}
