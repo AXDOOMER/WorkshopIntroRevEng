@@ -12,6 +12,8 @@ view:
 	open main.pdf
 
 main.pdf: main.tex
+	# Build twice on first time so blueslope graphic is not missing
+	if [ ! -f main.aux ]; then $(TEX) main.tex; fi;
 	$(TEX) main.tex
 	$(MOVE) main.pdf $(TARGET)
 
