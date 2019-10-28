@@ -4,7 +4,7 @@ Atelier d'introduction à la rétro-ingénierie pour la [DCI](https://dciets.com
 
 ## Objectif
 
-Atelier d'introduction sur la rétro-ingénierie afin d'amener les participants à un niveau où ils seront autonomnes.
+Atelier d'introduction sur la rétro-ingénierie afin d'amener les participants à un niveau où ils seront autonomes.
 
 ### Modèle Beamer
 
