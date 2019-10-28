@@ -72,8 +72,8 @@
 \setlength{\leftmarginiii}{1em}
 
 \pgfdeclareimage[width=\paperwidth]{blueslope}{blueslope}
-%\pgfdeclareimage[width=0.075\paperwidth]{logo}{logo_dci_white_red}
-\pgfdeclareimage[width=0.08\paperwidth]{logo}{cedille-logo}
+\pgfdeclareimage[width=0.075\paperwidth]{logo}{logo_dci_white_red}
+%\pgfdeclareimage[width=0.08\paperwidth]{logo}{cedille-logo}
 
 \setbeamertemplate{background}{%
 \begin{tikzpicture}[overlay,remember picture]
@@ -83,11 +83,14 @@
 \node[anchor=south west,inner sep=0pt,draw=none,xshift=0.05\paperwidth,yshift=0.04\paperheight] at (current page.south west) {\pgfuseimage{logo}};%
 % page number on each slide %
 \node[anchor=south east,inner sep=0pt,draw=none,xshift=-0.1\paperwidth,yshift=0.042\paperheight] at (current page.south east) {\textcolor{white}{\thepage}};%
+% section name (https://tex.stackexchange.com/questions/369376/insert-sectiontitle-in-footer)
+% changing font size: https://texblog.org/2012/08/29/changing-the-font-size-in-latex/
+\node[anchor=south,inner sep=0pt,draw=none,xshift=0.0\paperwidth,yshift=0.042\paperheight] at (current page.south) {\textcolor{white}{\footnotesize\insertsection}};%
 \end{tikzpicture}%
 }
 
 \setbeamertemplate{footline}{%
-\vskip0.15\paperheight
+    \vskip0.15\paperheight
 }
 
 \newcommand{\smallframetitle}{%
@@ -98,6 +101,9 @@
   \setbeamertemplate{frametitle}{\vskip0.1\paperheight\insertframetitle} 
   \setbeamerfont{frametitle}{size=\LARGE,series=\mdseries}
 }
+
+% Space above figures
+\setlength{\abovecaptionskip}{0pt}
 
 \renewcommand{\arraystretch}{1.2}
 \newcommand{\tableheadrow}{\rowcolor{BerkeleyTableGold}}

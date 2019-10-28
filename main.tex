@@ -5,8 +5,8 @@
 \title[Your Short Title]{Introduction à la rétro-ingénierie}
 \subtitle{Analyse statique et dynamique}
 \author{Alexandre-Xavier Labonté-Lamoureux}
-\institute{CEDILLE et Délégation des compétitions en informatique de l'ÉTS}
-\date{8 juillet 2019}
+\institute{Délégation des compétitions en informatique de l'ÉTS}
+\date{21 août 2019}
 
 % numéros de page
 %\sepackage{fancyhdr}
@@ -17,9 +17,16 @@
 
 \begin{document}
 
-\begin{frame}
-  \titlepage
-\end{frame}
+\section{Page titre}
+
+{
+    %\usebackgroundtemplate{%
+    %    \includegraphics[width=\paperwidth,height=\paperheight]{DeepDive_1024x683}}
+
+    \begin{frame}
+        \titlepage
+    \end{frame}
+}
 
 % Uncomment these lines for an automatically generated outline.
 %\begin{frame}{Outline}
@@ -56,7 +63,8 @@
     \begin{itemize}
         \item Comprendre comment les programmes compilés fonctionnent à l'interne
         \item Être capable de réparer ses problèmes plus facilement avec un débogueur
-        \item Examiner un logiciel propriétaire pour en produire une version libre
+        \item Comprendre les optimisations faites au code C et C++ par un compilateur
+        \item Examiner un logiciel propriétaire pour en produire une version ouverte
         \item Récupérer le code source d'un logiciel dont on l'a perdu
         \item Étudier des logiciels malveillants et découvrir leurs propriétaires
         \item Espionnage industriel et vol de propriété intellectuel (déconseillé)
@@ -76,7 +84,7 @@
         GNU/Linux
         \begin{itemize}
             \item radare2 (avec Cutter), Ghidra
-            \item GDB (Pwngdb)
+            \item GDB (avec plugin Pwngdb)
             \item Okteta Hex Editor
             \item \texttt{readelf}
             \item \texttt{strace}
@@ -102,6 +110,37 @@
 \end{frame}
 
 
+\begin{frame}
+    \frametitle{Décompilateurs}
+    
+    \begin{columns}[T]
+        \begin{column}{0.48\textwidth}
+            \begin{itemize}
+                \item RetDec retargetable decompiler 
+                \item Snowman decompiler 
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.48\textwidth}
+            \begin{itemize}
+                \item Hex-Rays Decompiler
+                \item JEB Decompiler \newline
+            \end{itemize}
+        \end{column}
+    \end{columns}
+    
+    Pourquoi savoir lire l'assembleur quand on peut utiliser un décompilateur?
+    
+    \begin{itemize}
+        % le code peut juste être optimizé et le décompilateur va mal fonctionner
+        \item Les décompilateurs vont souvent générer du code inexacte.
+        \item Les décompilateurs peuvent refuser de décompiler pour plein de raisons (instructions ou structure du programme invalides ou non reconnues)
+        \item Les décompilateurs peuvent cacher des erreurs qu'on veut exploiter dans un programme.
+        \item Certains programmes sont métas (auto-modification, introspection, etc.)
+    \end{itemize}
+    
+\end{frame}
+
+
 \section{Représentation des données}
 
 
@@ -111,7 +150,7 @@
         \item Le code d'un exécutable est chargé tel quel en mémoire
         \item Il y a une \href{https://en.wikipedia.org/wiki/Relocation_(computing)}{relocalisation} si l'exécutable contient du «position-dependent code»
         % Avec GCC, on peut forcer noPIE, mais on a ne perte de performance de 10%
-        \item Les exécutables on une adresse de chargement préférée: 
+        \item Les exécutables ont une adresse de chargement préférée: 
         \begin{itemize}
             \item 0x00400000 (EXE, ELF/COFF), 0x10000000 (DLL), 0x0100 (COM)
         \end{itemize}
@@ -123,16 +162,15 @@
 \end{frame}
 
 \begin{frame}{Encodage des instructions}
-    Pour afficher les opcodes: Options -> General... -> Number of opcode bytes
-    \begin{figure}
+    Pour afficher les opcodes: Options $\rightarrow$ General $\rightarrow$ Number of opcode bytes
+    \begin{figure}%\begin{center}
         %\includegraphics[width=.50\textwidth,height=.40\textheight]{Opcodes}
-        \includegraphics[width=0.55\textwidth]{Opcodes}
-        \caption{\label{fig:opcodes}Opcodes dans IDA}
+        \includegraphics[width=0.58\textwidth]{Opcodes}
+        %\caption{\label{fig:opcodes}Opcodes dans IDA représentés par des mnémoniques (offsets, opcodes, mnémoniques, opérandes)}
+        % http://jargonf.org/wiki/mn%C3%A9monique
     \end{figure}
 
 \end{frame}
-
-\section{La rétro-ingénierie}
 
 
 % Partie 1 - L'analyse statique
@@ -170,7 +208,7 @@
 
     \begin{center}
     \includegraphics[width=.60\textwidth,height=.60\textheight]{x86-registers}\newline{}
-    Source: \href{http://blog.jpauli.tech/2016-11-30-on-c-performances-html/}{Registers}
+    Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{Registers}
     \end{center}
 \end{frame}
 
@@ -179,7 +217,7 @@
         \item Il y a un registre FLAGS (EFLAGS sur 32-bit, RFLAGS sur 64-bit). 
         \item Il sert à conserver le résultat des conditions rencontrées dans le code.
         \item Les «flags» sont modifiés par certaines instructions. Ils affectent le flot d'exécution du code (instructions de type «jump» conditionnel).
-        \item Ils sont modifiés par les instructions comme \texttt{cmp}, mais peuvent aussi être modifiés par des instructions comme \texttt{sub}. 
+        \item Ils sont modifiés par les instructions comme \texttt{cmp}, mais peuvent aussi être modifiés par des instructions comme \texttt{sub} ou \texttt{dec}. 
         \item Il n'est pas utile de les connaître pour faire la rétro-ingénierie.
     \end{itemize}
 \end{frame}
@@ -187,7 +225,7 @@
 
 \begin{frame}{La pile (stack)}
 
-La pile est un mécanisme utilisé pour préserver des données lors des changements de portée (exemple: lorsqu'on entre dans une fonction)
+La pile est un mécanisme LIFO utilisé pour préserver des données lors des changements de portée («scope»). Ex: lorsqu'on entre dans une fonction.
 
 \begin{center}
 \includegraphics[width=.60\textwidth,height=.56\textheight]{Stack-convention}\newline{}
@@ -197,9 +235,30 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
 \end{frame}
 
 
+\begin{frame}{Conventions d'appel}
+    \begin{itemize}
+        \item Définit l'ordre d'empilage des paramètres à passer à une fonction.
+        \item Définit qui doit dépiler ces paramètres. 
+        \item Ces conventions sont \texttt{cdecl}, \texttt{stdcall}, \texttt{fastcall}, etc.
+        \item La convention varie selon le compilateur et les conventions peuvent changer à l'intérieur d'un même programme.
+        \item Pour plus d'info: \href{https://en.wikipedia.org/wiki/X86_calling_conventions}{x86 calling conventions}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Conventions d'appel: Dans le cas de GCC}
+    \begin{itemize}
+        \item GCC utilise \texttt{cdecl}. Les paramètre sont passés de droite à gauche.
+        \item Exemple: Retour dans \texttt{eax}, paramètres dans \texttt{edi}, \texttt{esi}, \texttt{edx}, \texttt{ecx}:
+        
+        \begin{center}
+            \includegraphics[width=.60\textwidth,height=.55\textheight]{appels}
+        \end{center}
+    \end{itemize}
+\end{frame}
 
 
-\section{Some \LaTeX{} Examples}
+
+%\section{Some \LaTeX{} Examples}
 
 \begin{frame}
     \frametitle{Boutisme (Endianness)}
@@ -211,7 +270,7 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
             \begin{itemize}
                 \item Les protocoles TCP/IP 
                 \item PCI Express
-                \includegraphics[width=.80\textwidth,height=.5\textheight]{Big-Endian}
+                \item Java
             \end{itemize}
         \end{column}
         
@@ -221,19 +280,20 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
             \begin{itemize}
                 \item Processeurs Intel et ARM
                 \item 0xA0B70708 est représenté en mémoire comme \texttt{08 07 B7 A0}
-                \includegraphics[width=.80\textwidth,height=.5\textheight]{Little-Endian}
             \end{itemize}
         \end{column}
         % bi-boutisme et mi-boutisme c'est de l'hérésie
     \end{columns}
+    
+    \begin{center}
+    \includegraphics[width=.56\textwidth,height=.4\textheight]{Page-2-Image-3.png}%\newline{}
+%Source: \href{https://www.nxp.com/docs/en/application-note/AN4657.pdf}{Comparison of Big-Endian Versus Little-Endian}
+    \end{center}
 \end{frame}
 
 
-
-
-
-
-\subsection{Instructions les plus communes en assembleur}
+%\subsection{Instructions les plus communes en assembleur}
+\section{Survol de l'assembleur x86-64}
 
 %\smallframetitle
 \normalframetitle
@@ -288,6 +348,8 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
     \end{tabular}
     \caption{\label{tab:insbitwise}Instructions pour les opérations logiques et les opérations sur les bits}
     \end{table}
+    
+    Opérations «Shift» et «Rotate»: \href{https://en.wikibooks.org/wiki/X86_Assembly/Shift_and_Rotate}{\texttt{X86 Assembly/Shift and Rotate}}
 \end{frame}
 
 \begin{frame}{Instructions pour les sauts conditionnels}
@@ -354,12 +416,15 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
     \end{table}
 \end{frame}
 
+%\subsection{Patterns}
+\section{Patterns communs et code obscurci}
+
 \begin{frame}{Instruction XOR}
     Opération XOR telle que l'opérateur \texttt{\textasciicircum}
     \begin{itemize}
         \item \texttt{xor eax, eax} pour mettre le registre EAX à zéro
         \item L'opération XOR dans des boucles peut indiquer qu'il y a encodage
-        \item Menu \texttt{Search} -> \texttt{Text}, entrez "xor", puis \texttt{Search all occurrences}
+        \item Menu \texttt{Search} -> \texttt{Text}, entrez «xor», puis \texttt{Search all occurrences}
         \item NULL-preserving XOR: Ne XOR pas les 0 ou les valeurs qui sont == à la clef
     \end{itemize}
     
@@ -384,23 +449,28 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
     
 \end{frame}
 
-\subsection{Patterns}
-
 \begin{frame}{String stacking}
-    Strings empilés sur la pile
+    Caractères empilés sur la pile. La \href{http://www.asciitable.com/}{table ASCII} est votre ami!
     \begin{itemize}
         \item Sous forme de caractères: Quand c'est une suite de caractères, on peut les convertir en un seul string. 
         \item Sous forme d'entiers: Quand c'est des nombres, on peut les convertir en chaînes de caractères et elles seront affichées à l'envers.
     \end{itemize}
 
+    \begin{center}
+        \includegraphics[width=.40\textwidth,height=.40\textheight]{stringstack}
+    \end{center}
+
 \end{frame}
 
 \begin{frame}{Programmes cachés}
     Il y a plusieurs façon de cacher un programme dans un autre pour compliquer l'analyse. Le programme principal sert donc qu'à en faire son extraction.
+    
+    Quelques exemples de programmes cachés:
     \begin{itemize}
         \item Sous forme de shellcode, injecté dans un autre processus ou non.
         \item Intégré à la section \texttt{.rsrc} d'un PE ou embarqué dans un ELF
         \item Compressé (UPX, aPACK) ou packé avec un algorithme de chiffrement/obfuscation (PECompact, ASPack, Armadillo)
+        \item Fichier exécutable compressé avec des algorithmes du Windows API \href{https://docs.microsoft.com/en-us/windows/win32/cmpapi/-compression-portal}{(voir MSDN)} et injecté dans un autre processus.
         \item \href{https://www.exetools.com/}{\texttt{https://www.exetools.com/}}
     \end{itemize}
 \end{frame}
@@ -412,20 +482,21 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
     
     Le désassembleur ne fait pas la différence entre des instructions et des données.
     \begin{itemize}
-        \item Ex: Call pour sauter par dessus le texte "hello". 
+        \item Ex: Call pour sauter par dessus le texte «hello». 
         
         \texttt{E8 06 00 00 00 68 65 6c 6c 6F 00 58 C3}
     \end{itemize}
     
     Il est aussi possible d'utiliser les instructions jump pour rendre le désassemblage impossible.
     \begin{itemize}
-        \item Ex: Instruction JMP relative qui saute à l'intérieur de ses propres opcodes
+        \item Ex: Instruction JMP relatif qui saute à l'intérieur de ses propres opcodes
         
-        \texttt{EB FF C0 48}
+        \texttt{EB FF C0 FF C8}
     \end{itemize}
-
 \end{frame}
 
+
+\section{Analyse dynamique}
 
 \begin{frame}
     \frametitle{Analyse dynamique}
@@ -489,7 +560,7 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
 
 
 
-
+\section{Analyse avec IDA}
 
 \begin{frame}{IDA}
 
@@ -499,7 +570,7 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
         \item IDA Free, une version Freeware existe: \href{https://www.hex-rays.com/products/ida/support/download_freeware.shtml}{téléchargez-là ici} 
         \item Permet de visualiser l'assembleur et le code flow dans un graphique
         \item Permet de sauvegarder notre travail dans une base de données
-        \item La version payante permet d'écrire des scripts Python, de décompiler du code et supporte plein d'architectures CPU différentes.
+        \item La version payante permet d'écrire des scripts Python, de décompiler du code et supporte plusieurs architectures CPU différentes.
     \end{itemize}
 \end{frame}
 
@@ -513,35 +584,61 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
         \item \texttt{C}: convertir en code
         \item \texttt{R}: Convertir en caractère
         \item \texttt{:} et \texttt{;} : Mettre un commentaire
+        \item \texttt{X}: Pour trouver les références croisées
+        \item \texttt{N}: Renommer une fonction ou une variable
     \end{itemize}
 \end{frame}
 
 
 \begin{frame}{Modifier un programme dans IDA}
-    Dans le menu Edit -> Patch program
+    Dans le menu Edit $\rightarrow$  Patch program
     \begin{itemize}
         \item \texttt{Change byte}: Utile pour modifier jusqu'à 16 opcodes à la fois (pour les NOPer par exemple)
         \item \texttt{Change word}: Pour modifier 16 bits
         \item \texttt{Assemble}: Permet d'écrire de l'assembleur à insérer dans le code (attention: les instructions ont différentes tailles!)
     \end{itemize}
     
-    Notez que IDA n'a pas de fonction "undo", donc faites attention à ce que vous faites. Sauvegardez souvent pour pouvoir retourner à un état précédant.
+    Notez que IDA n'a pas de fonction «undo», donc faites attention à ce que vous faites. Sauvegardez souvent pour pouvoir retourner à un état précédant.
 \end{frame}
+
+
+\section{Atelier}
 
 \begin{frame}{Méthodologie}
     \begin{itemize}
         \item Privilégier l'analyse statique
         \item Se servir de l'analyse dynamique que pour confirmer la compréhension de la rétro-ingénierie par analyse statique
         \item Ne pas modifier le binaire
+        \item Toujours commencer avec les commandes \texttt{strings} ou \texttt{binwalk} parce qu'elles peuvent révéler des informations qu'on pourrait passer à côté autrement
     \end{itemize}
     
-    \begin{block}{Ouin mais c'est tough}
+    \begin{block}{Ouin mais reverser l'assembleur c'est tough}
         Plus t'en fait, plus tu deviens bon!  ;-)
     \end{block}
 \end{frame}
 
+
+\begin{frame}{À garder en tête}
+    Parfois, on semble manquer d'information durant la rétro-ingénierie et le code peut être difficilement compréhensible. 
+    \begin{itemize}
+        \item Faire des déductions
+        \begin{itemize}
+            \item Ne pas hésiter à émettre des hypothèses
+            \item Se servir de son instinct de programmeur
+        \end{itemize}
+        \item Document son travail
+        \begin{itemize}
+            \item Mettre des commentaires dans le code et y revenir plus tard
+            \item Renommer les fonctions pour indiquer ce qu'elles font
+        \end{itemize}
+        \item Écrire du pseudocode afin de s'aider à comprendre
+        \item Ne pas perdre son temps à essayer de comprendre des instructions qui n'ont pas un impact sur le calcul qui est fait (souvent \texttt{rbp} et \texttt{rsp})
+    \end{itemize}
+\end{frame}
+
+
 \begin{frame}{Défi}
-    Effectuez la rétro-ingénierie d'un binaire afin de comprendre son fonctionnement au complet.
+    Effectuez la rétro-ingénierie d'un binaire avec \href{https://www.hex-rays.com/products/ida/support/download_freeware.shtml}{IDA Free} afin de comprendre son fonctionnement au complet.
     \begin{itemize}
         \item Identifiez les changements que le programme fait à l'ordinateur
         \item Pouvez-vous trouver: 
@@ -552,19 +649,8 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
         \end{itemize}
         \item Codez un extracteur qui décode ce que le programme contient
     \end{itemize}
-    
-    Il est défendu d'utiliser un autre logiciel que IDA Free pour faire le défi!
-\end{frame}
-
-
-\begin{frame}{À garder en tête}
-    Parfois, on semble manquer d'information durant la rétro-ingénierie et le code peut être difficilement compréhensible. 
-    \begin{itemize}
-        \item Ne pas hésiter à émettre des hypothèses
-        \item Se servir de son instinct de programmeur
-        \item Mettre des commentaires dans le code et y revenir plus tard
-        \item Écrire du pseudocode afin de s'aider à comprendre
-    \end{itemize}
+    %Il est défendu d'utiliser un autre logiciel que IDA Free pour faire le défi!
+    Mettez vous en équipe de deux pour ne pas souffrir seul dans votre coin!
 \end{frame}
 
 
@@ -621,17 +707,24 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
 
 \fi % \iffalse
 
+\section{Ressources}
+
 % Pour la suite %
 \begin{frame}
     \frametitle{Ressources externes}
     \begin{itemize}
-        \item Faire des défis sur Root Me: \url{https://www.root-me.org/en/Challenges/Cracking/}
+        \item Faire des défis sur \texttt{Root Me}: \url{https://www.root-me.org/en/Challenges/Cracking/}
         % url serait le lien complet, mais comme texture juste mettre le domaine
-        \item S'habituer à lire l'assembleur: \url{https://godbolt.org/}
+        \item Faire des défis sur \texttt{RingZer0}: \url{https://ringzer0ctf.com/challenges/}
+        \item Pour s'habituer à lire l'assembleur et le comparer avec le code \texttt{C} correspondant: 
+        \item Utile pour décoder plusieurs formats de données qu'on peut trouver dans un fichier exécutable: \url{https://gchq.github.io/CyberChef/}
     \end{itemize}
 \end{frame}
 
+
 % Références %
+\section{Références}
+
 \begin{frame}
     \frametitle{Références}
     \begin{itemize}
@@ -639,9 +732,18 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
         \item Inspiré par un ancien \href{https://dciets.com/dci-workshop/security/2017/09/13/re/}{workshop fait par Francis Labelle}
     \end{itemize}
     
-    \begin{block}{License}
-        Cette présentation et son modèle sont couverts par la licence\newline
-        \href{https://www.overleaf.com/latex/templates/uc-berkeley-beamer-theme/bywswngntrws}{\texttt{Creative Commons CC BY 4.0}}
+    \begin{block}{Licence}
+        Cette présentation est distribuée sous la licence 
+        \href{https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr}{\texttt{CC BY-NC-SA 4.0}}.
+        
+        Les images tirées d'Internet restent la propriété de leur pripriétaire respectif. 
+        
+        Le modèle de cette présentation peut être trouvé 
+        \href{https://www.overleaf.com/latex/templates/uc-berkeley-beamer-theme/bywswngntrws}{ici}.
+        
+        \begin{center}
+            \includegraphics[width=.20\textwidth,height=.10\textheight]{rect-by-nc-sa-300x105}
+        \end{center}
     \end{block}
 \end{frame}
 
