@@ -11,3 +11,5 @@ Atelier d'introduction sur la rétro-ingénierie afin d'amener les participants 
 [UC Berkeley Beamer Theme](https://www.overleaf.com/latex/templates/uc-berkeley-beamer-theme/bywswngntrws)
 
 Licence: Creative Commons CC BY 4.0
+
+![IDA screenshot](https://raw.githubusercontent.com/axdoomer/WorkshopIntroRevEng/master/confused-ida.gif)

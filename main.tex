@@ -2,11 +2,11 @@
 \documentclass[10pt,xcolor={table,dvipsnames},t]{beamer}
 \usetheme{UCBerkeley}
 
-\title[Your Short Title]{Introduction à la rétro-ingénierie}
+\title[Intro à la rétro-ingénierie]{Introduction à la rétro-ingénierie}
 \subtitle{Analyse statique et dynamique}
 \author{Alexandre-Xavier Labonté-Lamoureux}
 \institute{Délégation des compétitions en informatique de l'ÉTS}
-\date{21 août 2019}
+\date{29 janvier 2020}
 
 % numéros de page
 %\sepackage{fancyhdr}
@@ -57,6 +57,15 @@
 %\end{block}
 
 \end{frame}
+
+
+\begin{frame}{La rétro-ingénierie}
+    \begin{figure}%\begin{center}
+    % slide 5: https://www.slideshare.net/parrychahal50/software-reverse-engineering-69635162
+        \includegraphics[width=0.80\textwidth]{inglog}
+    \end{figure}
+\end{frame}
+
 
 \begin{frame}{La rétro-ingénierie}
     Pourquoi la rétro-ingénierie?
@@ -308,7 +317,7 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
     \texttt{mov dst, src} & dst = src (copie) \\
     \texttt{xchg dst1, dst2} & Échange dst1 et dst2 \\
     \texttt{push src} & push src, décrémente rsp \\
-    \texttt{pop dst} & pop dst, décrémente rsp
+    \texttt{pop dst} & pop dst, incrémente rsp
     \end{tabular}
     \caption{\label{tab:instrans}Instructions de transfert de données}
     \end{table}
@@ -472,6 +481,7 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
         \item Compressé (UPX, aPACK) ou packé avec un algorithme de chiffrement/obfuscation (PECompact, ASPack, Armadillo)
         \item Fichier exécutable compressé avec des algorithmes du Windows API \href{https://docs.microsoft.com/en-us/windows/win32/cmpapi/-compression-portal}{(voir MSDN)} et injecté dans un autre processus.
         \item \href{https://www.exetools.com/}{\texttt{https://www.exetools.com/}}
+        % parfois c'est juste dumpé sur le disque et exécuté
     \end{itemize}
 \end{frame}
 
@@ -540,7 +550,7 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
     \begin{itemize}
         \item \texttt{ptrace} (Appel système Linux)
         \begin{itemize}
-            \item Permet à un processus d'en contrôler un autre. Un processus peut se faire contrôler par un seul processus à la fois.
+            \item Permet à un processus (ex: débogueur) d'en contrôler un autre. Un processus peut se faire contrôler par un seul processus à la fois. 
         \end{itemize}
         
         \item Lancer des signaux
@@ -578,7 +588,7 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
 \begin{frame}{Raccourcis dans IDA}
     Cliquer pour placer le curseur à un endroit approprié, puis appuyer...
     \begin{itemize}
-        \item \texttt{U}: Indéfinir une donnée
+        \item \texttt{U}: Indéfinir ce qui est sélectionné
         \item \texttt{A}: Convertir en string
         \item \texttt{D}: Convertir en donnée
         \item \texttt{C}: Convertir en code
@@ -586,6 +596,8 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
         \item \texttt{:} et \texttt{;} : Mettre un commentaire
         \item \texttt{X}: Pour trouver les références croisées
         \item \texttt{N}: Renommer une fonction ou une variable
+        %\item \texttt{P}: Créer une procédure
+        %\item \texttt{G}: Aller à un adresse
         \item \texttt{«espace»}: Alterner entre la vue «Graph» et «Text»
     \end{itemize}
 \end{frame}
@@ -609,9 +621,11 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
     \begin{itemize}
         \item Privilégier l'analyse statique
         \item Se servir de l'analyse dynamique que pour confirmer la compréhension de la rétro-ingénierie par analyse statique
-        \item Ne pas modifier le binaire
+        \item Ne pas modifier le binaire (sauf si c'est nécessaire à l'analyse)
         \item Toujours commencer avec les commandes \texttt{strings} ou \texttt{binwalk} parce qu'elles peuvent révéler des informations qu'on pourrait passer à côté autrement
     \end{itemize}
+    
+    % oublie pas de commencer par regarder les imports et les exports
     
     \begin{block}{«Ouin mais reverser l'assembleur c'est tough»}
         Plus t'en fait, plus tu deviens bon!  ;-)
@@ -638,75 +652,45 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
 \end{frame}
 
 
+\begin{frame}{Erreurs de débutant}
+    À éviter!
+    \begin{itemize}
+        \item Y aller instruction par instruction de façon linéaire
+        \item Essayer de comprendre chaque instruction
+        \item Faire la rétro-ingénierie sans avoir de stratégie
+        \item Passer plein de temps à essayer de rétro-ingénierer la même partie de code
+    \end{itemize}
+    Solutions
+        \begin{itemize}
+        \item Commencer par comprendre le programme globalement et en surface
+        % regarder imports et exports
+        \item Aller plus en profondeur seulement lorsque nécessaire
+        % exemple de comment tu peux te planter: fonction qui fait du Base64
+        \item Passer à autre chose quand on est prit (peut-être qu'il y a plus d'info ailleurs)
+    \end{itemize}
+\end{frame}
+
+
 \begin{frame}{Défi}
     Effectuez la rétro-ingénierie d'un binaire avec \href{https://www.hex-rays.com/products/ida/support/download_freeware.shtml}{IDA Free} afin de comprendre son fonctionnement au complet.
-    \begin{itemize}
+    \begin{enumerate}
         \item Identifiez les changements que le programme fait à l'ordinateur
-        \item Pouvez-vous trouver: 
         \begin{itemize}
-            \item Deux buffer overflows?
-            \item Une race condition?
-            \item Un autre bug?
+            \item De quoi est-ce qu'il a besoin pour s'exécuter ?
+            \item Comment est-ce qu'il établi sa persistance ?
         \end{itemize}
         \item Codez un extracteur qui décode ce que le programme contient
-    \end{itemize}
+        \item Pouvez-vous trouver: 
+        \begin{itemize}
+            \item Deux dépassements de tampon ?
+            \item Un «race condition» ?
+            \item Un autre bug ?
+        \end{itemize}
+    \end{enumerate}
     %Il est défendu d'utiliser un autre logiciel que IDA Free pour faire le défi!
     Mettez vous en équipe de deux pour ne pas souffrir seul dans votre coin!
 \end{frame}
 
-
-\normalframetitle
-
-\iffalse
-
-% Autres défis à faire
-\section{Autres défis à faire}
-
-\begin{frame}{CTF101, Montré-Hack, avril 2019}
-    \begin{itemize}
-        \item Temps estimé: 40 minutes
-        \item Essayez l'analyse statique et l'analyse dynamique pour résoudre le défi
-        \item Il y a un bug dedans, pouvez-vous le trouver?
-        \item Instruction \texttt{gle \$a \$b} bébitte chat.
-    \end{itemize}
-    
-    \begin{block}{Solution (cachée)}
-        \begin{itemize}
-            \item Trouver la fonction SHA et déterminez ce qu'elle fait
-            \item Patcher l'instruction signal avec NOP, sautez par dessus avec le débogueur ou ignorer les signaux avec \texttt{handle SIGSEV nostop}
-        \end{itemize}
-    \end{block}
-\end{frame}
-
-\begin{frame}{DCI CTF, septembre 2018}
-    \begin{itemize}
-        \item Temps estimé: 30 minutes
-        \item Essayez l'analyse statique et l'analyse dynamique pour résoudre le défi
-        \item Incide: Pourquoi le programme est-il lent?
-    \end{itemize}
-    
-    \begin{block}{Solution (cachée)}
-        \begin{itemize}
-            \item Remplacer les instructions \texttt{sleep} par des \texttt{NOP}
-        \end{itemize}
-    \end{block}
-\end{frame}
-
-\begin{frame}{OWASP CTF, Hackfest, novembre 2018}
-    \begin{itemize}
-        \item Temps estimé: 20 minutes
-        \item Utiliser \texttt{strings} and imprimer l'assembleur avec \texttt{radare}
-        \item Résoudre le défi en observant les instructions assembleur et les appliquer sur le string trouvé
-    \end{itemize}
-    
-    \begin{block}{Solution (cachée)}
-        \begin{itemize}
-            \item Facile
-        \end{itemize}
-    \end{block}
-\end{frame}
-
-\fi % \iffalse
 
 \section{Ressources}
 
@@ -717,8 +701,9 @@ Source: \href{https://www.cs.virginia.edu/~evans/cs216/guides/x86.html}{x86 Asse
         \item Faire des défis sur \texttt{Root Me}: \url{https://www.root-me.org/en/Challenges/Cracking/}
         % url serait le lien complet, mais comme texture juste mettre le domaine
         \item Faire des défis sur \texttt{RingZer0}: \url{https://ringzer0ctf.com/challenges/}
-        \item Pour s'habituer à lire l'assembleur et le comparer avec le code \texttt{C} correspondant: 
+        \item Pour s'habituer à lire l'assembleur et le comparer avec le code \texttt{C} correspondant: \url{https://godbolt.org/}
         \item Utile pour décoder plusieurs formats de données qu'on peut trouver dans un fichier exécutable: \url{https://gchq.github.io/CyberChef/}
+        \item Pour se pratiquer à analyser des maliciels: \url{https://github.com/rpisec/malware}
     \end{itemize}
 \end{frame}
 
