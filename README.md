@@ -6,6 +6,10 @@ Atelier d'introduction à la rétro-ingénierie pour la [DCI](https://dciets.com
 
 Atelier d'introduction sur la rétro-ingénierie afin d'amener les participants à un niveau où ils seront autonomes.
 
+## Compilation
+
+Sur Debian 10 (Buster), il faut installer les paquets `texlive-xetex` et `ttf-mscorefonts-installer`. Après, il suffit d'utiliser la commande `make` pour générer le fichier « WorkshopIntroRevEng.pdf ». 
+
 ### Modèle Beamer
 
 [UC Berkeley Beamer Theme](https://www.overleaf.com/latex/templates/uc-berkeley-beamer-theme/bywswngntrws)
